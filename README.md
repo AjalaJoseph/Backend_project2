@@ -27,10 +27,10 @@ This is a backend authication service built as part of my backend coding task. I
 ## API TESTING (THURDER CLIENT )
 
 ## Register Endpoint
-![Register successful](./images/Capture1.PNG)
+![Register successful](./authentication/images/Capture1.PNG)
 
 ## Login Endpoint
-![Login  successful](./images/Capture2.PNG)
+![Login  successful](./authentication//images/capture2.png)
 
 ## Refresh Endpoint
-![Register successful](./images/Capture3.PNG)
+![Register successful](./authentication/images/capture3.png)

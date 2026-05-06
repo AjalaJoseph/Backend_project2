@@ -7,8 +7,8 @@ const { error } = require('console');
 dotenv.config()
 const JWT_SCRETE =process.env.JWT_SCRETE ;
 const  refreshToken= process.env.REFRESH_TOKEN_SECRET;
-
-console.log( process.env.REFRESH_TOKEN_SECRET)
+let role ='';
+// console.log( process.env.REFRESH_TOKEN_SECRET)
 const pool = new Pool({
   user: process.env.postgres_userName,
   host: 'localhost',
@@ -49,9 +49,15 @@ const getBody = (request) =>{
             res.writeHead(400)
             return res.end(JSON.stringify({error:"User already exists"}))
            }
+           if(email==="ajalaoluwafikayomi27@gmail.com"){
+              role="admin"
+           }
+           else{
+            role="user"
+           }
              const hash_password = await bcrypt.hash(password,10)
-            const query = 'INSERT INTO user_data(user_name, email, password) VALUES($1, $2, $3)';
-            const values = [user_name, email, hash_password];
+            const query = 'INSERT INTO user_data(user_name, email, password, role) VALUES($1, $2, $3,$4)';
+            const values = [user_name, email, hash_password,role];
             await pool.query(query, values);
             
           res.writeHead(200)
