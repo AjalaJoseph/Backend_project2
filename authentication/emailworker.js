@@ -12,9 +12,10 @@ const transporter = nodemailer.createTransport({
     }
 });
 const emailWorker = new Worker('welcome-emails',async (job) =>{
-    const {email, name} = job.data
-    console.log(`Sending email to ${name} at ${email}...`);
-    transporter.sendMail({
+    const {email, name, resetLink} = job.data
+    switch(job.name){
+      case 'send-email':{
+        transporter.sendMail({
       to:email,
       from: '"Ajala from Team" <ajalaoluwafikayomi27@gmail.com>',
       subject:"welcome",
@@ -141,13 +142,22 @@ const emailWorker = new Worker('welcome-emails',async (job) =>{
 
 </div>
       `
-    })
-//      transporter.verify(function (error, success) {
-//   if (error) {
-//     console.log("❌ Connection Error:", error);
-//   } else {
-//     console.log("✅ SMTP Server is ready to send!");
-//   }
-// });
-        console.log('Email sent successfully!');
+          })
+          break;
+      }
+      case "reset-password":{
+         await transporter.sendMail({
+                to: email,
+                from: '"My App Security" <ajalaoluwafikayomi27@gmail.com>',
+                subject: "Reset your password 🔒",
+                text: `Click here to reset: ${resetLink}`,
+                html: `<h3>Security Alert</h3><p>Click <a href="${resetLink}">here</a> to reset your password.</p>`
+            });
+            break;
+      }
+      default:
+        console.log("unknow job name")
+    }
 }, {connection})  
+emailWorker.on('completed', (job) => console.log(`✅ Queue Job ${job.id} completed successfully.`));
+emailWorker.on('failed', (job, err) => console.error(`❌ Queue Job ${job?.id} failed out: ${err.message}`));

@@ -6,7 +6,7 @@ import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
 import Redis from 'ioredis';
 import cookieParser from 'cookie-parser';
-import { sendWelcomeEmail } from './emailqueue.js';
+import { sendWelcomeEmail,resetPassword } from './emailqueue.js';
 dotenv.config();
 const app = express();
 
@@ -128,6 +128,29 @@ app.post('/refresh', async (req, res) => {
      return res.json({ message: newAccessToken });
     
 });
+// reset password 
+app.post("/password-resest", async(req, res) =>{
+    try{
+        const {email} = await req.body
+    if(!email){
+        return res.status(401).json({error:"email is required"})
+    }
+    const check = await pool.query(`SELECT * FROM user_data WHERE email = $1`, [email]);
+    if(!check){
+        return res.status(404).json({error:"user not found"})
+    }
+    const userData = check.rows[0]
+    const load = { userId: userData.id  };
+    const token = jwt.sign(load,JWT_SECRET,{expiresIn:'5m'})
+    const resetLink = "http://localhost:3000/reset-password-submit?id=${userData.id}&token=${token}"
+    await resetPassword(email,resetLink)
+    return res.status(200).json({status:"succes", message:"reset password link have been sent to your email"})
+    }
+    catch(error){
+        console.log('reset password error', error)
+    }
+})
+// reset password submit 
 
 // logout route
 app.post("/logout", async (req, res) =>{
