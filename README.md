@@ -9,7 +9,7 @@ This is a backend authication service built as part of my backend coding task. I
 - **LOGIN**: Validate user input and return aJWT token for easy access with addiction of refresh token to extend user session.
 
 ## Tech Stack
-- **NODEJS** (SERVER)
+- **NODEJS $ EXPRESS** (SERVER)
 - **Nodemon**(for server auto reload)
 - **BCRYPT** (for password hashing)
 - **JWT** (for token generation)
