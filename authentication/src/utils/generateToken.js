@@ -16,3 +16,12 @@ export const generateRefreshToken = (user) =>{
     }
     return jwt.sign(pay_load, process.env.REFRESH_TOKEN_SECRET, {expiresIn:'1d'})
 }
+// generate new token 
+export const generateNewRefreshToken = (data) =>{
+    const payLoad ={
+        userId : data.userId,
+        email:data.email
+    }
+
+    return jwt.sign(payLoad,process.env.REFRESH_TOKEN_SECRET, {expiresIn:'7d'})
+}
