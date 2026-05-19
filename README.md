@@ -111,7 +111,7 @@ Create a new user account.
 ```
 ###  Request Fields
 
-| Field | | Type | Required |
+| Field | Type | Required |
 |---|---:|---:|
 |user_name | string | yes |
 | email | string | yes |
@@ -163,7 +163,7 @@ Authenticate a user and generates access and refresh token.
 ```
 ###  Request Fields
 
-| Field | | Type | Required |
+| Field | Type | Required |
 |---|---:|---:|
 | email | string | Yes |
 | password | string | Yes |
