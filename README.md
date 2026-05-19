@@ -143,7 +143,7 @@ Create a new user account.
   "error": "Email already exists"
 }
 ```
-![Register successful](./authentication/images/Capture1.PNG)
+![Register error](./authentication/images/registration%20errror.png)
 
 ## 2. Login User
 ## Endpoint 
@@ -193,7 +193,7 @@ Authenticate a user and generates access and refresh token.
   }
 }
 ```
-![Login  successful](./authentication//images/capture2.png)
+![Login  successful](./authentication//images/new%20login.png)
 
 ### possible Errors
 
@@ -204,7 +204,7 @@ Authenticate a user and generates access and refresh token.
 }
 when user not found 
 ```
-![Register successful](./authentication/images/Capture1.PNG)
+![Login error](./authentication/images/loginerror.png)
 
 
 ## 3. Refresh Access token
@@ -273,7 +273,7 @@ Setup
 WindowMS:15,
 limit:5
 ```
-
+![Rate limit](./authentication/images/ratelimit.png)
 ## API TESTING (THURDER CLIENT )
 
 ## MiddleWare
