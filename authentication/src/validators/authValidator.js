@@ -1,26 +1,77 @@
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken'
+import { body, validationResult} from "express-validator"
 dotenv.config()
-export const validateRegisterInput = (data) =>{
-    if(!data.user_name || !data.email || !data.password){
-        throw new Error('All fields required')
+export const validateRegisterInput = [
+    // validate and sanitize user_name
+    body('user_name')
+    .trim()
+    .notEmpty().withMessage('username is require')
+    .isLength({min:4}).withMessage('Username must be at least 4 characters long'),
+
+    //  validate and sanitize email
+    body('email')
+    .trim()
+    .isEmail().withMessage('Please provide a valid email')
+    .normalizeEmail(),
+
+    // validate password
+    body('password')
+    .trim()
+    .isStrongPassword().withMessage('Password must contain atleast 1 uppercase, 1 lowercase, 1 number, 1, special characters and must be atleast 8 character.'),
+
+]
+
+export const validate =(req, res, next) =>{
+    const error = validationResult(req)
+    if(!error.isEmpty()){
+        const errormessage = error.array().map(err => err.msg)
+        return res.status(400).json({error:errormessage})
     }
-    if (!data.email.includes("@") || !data.email.includes(".com")) {
-        throw new Error('Invalid email format')
-    }
-    if (data.password.length < 8) {
-        throw new Error("password is too short")
-    }
+    next()
 }
+// export const validateRegisterInput = (data) =>{
+//     if(!data.user_name || !data.email || !data.password){
+//         throw new Error('All fields required')
+//     }
+//     if (!data.email.includes("@") || !data.email.includes(".com")) {
+//         throw new Error('Invalid email format')
+//     }
+//     if (data.password.length < 8) {
+//         throw new Error("password is too short")
+//     }
+// }
 // login data validate
-export const validateLoginInput = (data) =>{
-    if(!data.email || !data.password){
-        throw new Error("Email and password required")
+export const validateLoginInput =[
+    // validate and sanitize email
+    body('email')
+    .trim()
+    .notEmpty().withMessage('Email is require')
+    .isEmail().withMessage('Enter a valid email ')
+    .normalizeEmail(),
+
+    //  validate password input
+    body('password')
+    .trim()
+    .notEmpty().withMessage('password is require')
+]
+
+export const validateLogin = (req, res, next) =>{
+    const error = validationResult(req)
+    if(!error.isEmpty()){
+        const errormessage = error.array().map(err => err.msg)
+        return res.status(400).json({error:errormessage})
     }
-    if(!data.email.includes('@') || !data.email.includes('.com')){
-        throw new Error("Invalid email format")
-    }
+    next()
 }
+// export const validateLoginInput = (data) =>{
+//     if(!data.email || !data.password){
+//         throw new Error("Email and password required")
+//     }
+//     if(!data.email.includes('@') || !data.email.includes('.com')){
+//         throw new Error("Invalid email format")
+//     }
+// }
 
 // token validator
 export const validateToken = (data) =>{

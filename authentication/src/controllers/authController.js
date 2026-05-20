@@ -7,7 +7,7 @@ export const registerControl= async(req, res)=>{
         // validate input
         const data = req.body
         
-        await validateRegisterInput(data)
+        // await validateRegisterInput(data)
         // register user 
         await registerUser(data);
        return  res.status(201).json({message:"User created"})
@@ -21,7 +21,7 @@ export const registerControl= async(req, res)=>{
 export const loginControler = async(req, res)=>{
     try{
         // validate userlogin  input 
-        await validateLoginInput(req.body)
+        // await validateLoginInput(req.body)
         //  login user 
         const result = await loginUser(req.body)
         // set user refresh token to redis
