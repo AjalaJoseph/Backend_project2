@@ -1,7 +1,8 @@
 import { validateRegisterInput, validateLoginInput,  validateToken, validateLogout } from "../validators/authValidator.js";
-import { registerUser, loginUser } from "../services/authService.js";
+import { registerUser, loginUser,changePasswordService } from "../services/authService.js";
+import { getUserById, findUserByEmail } from "../models/authModele.js";
 import { connection } from "../config/redis.js";
-import { generateNewRefreshToken } from "../utils/generateToken.js";
+import { generateNewAccessToken } from "../utils/generateToken.js";
 export const registerControl= async(req, res)=>{
     try{
         // validate input
@@ -52,8 +53,8 @@ export const refreshController = async(req, res) =>{
     try{
         const refreshToken = await req.cookies.refreshToken
     const lastToken = await validateToken(refreshToken)
-    const newRefreshToken = await generateNewRefreshToken(lastToken)
-       return res.status(200).json({message:'New access token generated', newRefreshToken})
+    const newAccessToken = await generateNewAccessToken(lastToken)
+       return res.status(200).json({message:'New access token generated', newAccessToken})
     }
     catch(err){
        return res.status(401).json({error:err.message})
@@ -74,5 +75,42 @@ export const logoutController = async (req, res)=>{
     catch(error){
          res.clearCookie('refreshToken');
         return res.status(200).json({ message: error.message });
+    }
+}
+
+//  getuser data
+export const getuserData = async (req, res) =>{
+    try{
+        const userId = req.user.userId
+        const userData = await getUserById(userId)
+        delete userData.password
+        return res.status(200).json({status:'success', data:userData})
+    }
+    catch(error){
+        return res.status(403).json({status:'fail', error:error})
+    }
+
+}
+
+//  change password controller
+
+export const changePassword = async (req, res) =>{
+    try{
+        const token = req.cookies.refreshToken
+        const change = await validateToken(token)
+        const userId = change.userId
+        const userEmail = change.email;
+        const user ={
+            userEmail:userEmail,
+            userId: userId,
+            data:req.body
+        }
+        await changePasswordService(user)
+        return res.status(200).json({
+            message:"password change successful"
+        })
+    }
+    catch(error){
+       return res.status(403).json({error:error.message})
     }
 }

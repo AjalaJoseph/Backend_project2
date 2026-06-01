@@ -2,7 +2,7 @@ import { validateRegisterInput } from "../validators/authValidator.js";
 import bcrypt from 'bcrypt'
 import { emailQueue } from "../queues/emailQueue.js";
 import { generateToken, generateRefreshToken } from "../utils/generateToken.js";
-import { findUserByEmail, createUser } from "../models/authModele.js";
+import { findUserByEmail, createUser, updateUserPassword } from "../models/authModele.js";
 export const registerUser = async(data) =>{
     //  check if email exist
     const userExist = await findUserByEmail(data.email)
@@ -38,3 +38,15 @@ export const loginUser = async(data) =>{
         refreshToken
     }
 }
+
+//  changePasswordService
+
+export const changePasswordService =async (user) =>{
+    const userExist = await findUserByEmail(user.userEmail)
+    const passwordMatch = await bcrypt.compare(user.data.old_password, userExist.password)
+    if(!passwordMatch){
+        throw new Error('password is correct')
+    }
+    await updateUserPassword(user.userId, user.data.new_password)
+
+} 

@@ -64,6 +64,26 @@ export const validateLogin = (req, res, next) =>{
     }
     next()
 }
+
+//  change password route
+export const validatePasswordInput = [
+    body('old_password')
+    .trim()
+    .notEmpty().withMessage('old password field is require'),
+
+    body('new_password')
+    .trim()
+    .notEmpty().withMessage('new password field is require')
+    .isStrongPassword().withMessage('Password must contain atleast 1 uppercase, 1 lowercase, 1 number, 1, special characters and must be atleast 8 character.'),
+]
+
+export const validatePassword = async (req, res, next) =>{
+    const error = validationResult(req)
+    if(!error.isEmpty()){
+        const errormessage = error.array().map(err => err.msg)
+        return res.status(400).json({error:errormessage})
+    }
+}
 // export const validateLoginInput = (data) =>{
 //     if(!data.email || !data.password){
 //         throw new Error("Email and password required")

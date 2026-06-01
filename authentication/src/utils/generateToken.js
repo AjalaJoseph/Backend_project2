@@ -6,7 +6,7 @@ export const generateToken = (user)=>{
         email: user.email 
     }
     return jwt.sign(
-        pay_load, process.env.JWT_SCRETE, {expiresIn:"5m"}
+        pay_load, process.env.JWT_SCRETE, {expiresIn:"1m"}
     )
 }
 export const generateRefreshToken = (user) =>{
@@ -14,14 +14,16 @@ export const generateRefreshToken = (user) =>{
         userId: user.id, 
         email: user.email 
     }
-    return jwt.sign(pay_load, process.env.REFRESH_TOKEN_SECRET, {expiresIn:'1d'})
+    return jwt.sign(pay_load, process.env.REFRESH_TOKEN_SECRET, {expiresIn:'7d'})
 }
 // generate new token 
-export const generateNewRefreshToken = (data) =>{
+export const generateNewAccessToken = (data) =>{
     const payLoad ={
-        userId : data.userId,
-        email:data.email
+        userId : data.verify.userId,
+        email:data.verify.email
     }
 
-    return jwt.sign(payLoad,process.env.REFRESH_TOKEN_SECRET, {expiresIn:'7d'})
+     return jwt.sign(
+        payLoad, process.env.JWT_SCRETE, {expiresIn:"1m"}
+    )
 }

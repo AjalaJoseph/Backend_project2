@@ -11,3 +11,15 @@ export const createUser = async (user_name, email, password)=>{
         )
         return result.rows[0]
 }
+//  get user by id
+export const getUserById = async (userId) =>{
+    const user = await dbPool.query(`SELECT * FROM user_data WHERE id =$1  `, [userId])
+    return user.rows[0]
+}
+
+// change user password
+
+export  const updateUserPassword = async (userId,newPassword) =>{
+    const changePassword = await dbPool.query(`UPDATE user_data SET password =$1 WHERE id=$2`, [newPassword] [userId])
+    return changePassword
+}
