@@ -274,6 +274,43 @@ WindowMS:15,
 limit:5
 ```
 ![Rate limit](./authentication/images/ratelimit.png)
+
+## 🛡️ Backend-Driven Idempotency System
+
+To prevent duplicate data creation (such as accidental double-clicks during user registration or automated network retry loops), this API implements an automated, backend-driven idempotency layer using **Redis**.
+
+### Core Architecture
+
+Instead of relying on the client application to generate and send an `Idempotency-Key` header, the backend handles deduplication deterministically using a request-hashing technique.
+
+```text
+ Client (No Key)            idempotencyGuard Middleware           PostgreSQL DB
+
+      |                                 |                               |
+      | ---- 1. Send POST Request ----> |                               |
+      |                                 | -- 2. Generate SHA-256 Hash ->|
+      |                                 | -- 3. SET NX EX 30 in Redis ->|
+      |                                 |                               |
+      |                                 | [If Lock Acquired Successfully]
+      |                                 | ----------------------------> |
+      |                                 | <--- 4. Return DB Record ---- |
+      |                                 |                               |
+      |                                 | -- 5. Overwrite Lock in Cache |
+      | <--- 6. Return 201 Created ---- |                               |
+```
+
+### Technical Workflow Details
+
+1. **Deterministic Fingerprinting**: The middleware intercepts incoming mutation requests (`POST`, `PUT`, `PATCH`). It reads the `req.originalUrl` and standardizes `req.body` by sorting its object keys alphabetically. It then generates a unique **SHA-256 signature** from this string.
+2. **Atomic Lock Check**: It issues a flat command parameter to Redis: `SET <key> PROCESSING NX EX 30`.
+   * **First-time Request**: The key does not exist. Redis writes the lock successfully, returns `OK`, and the middleware forwards the request to your database controllers via `next()`.
+   * **In-Flight Duplicate**: If an identical request arrives while the first is still processing, the `NX` command fails. The middleware reads `"PROCESSING"` and drops the second request with a `409 Conflict` status code.
+   * **Completed Retry**: If the first request finished within the 30-second window, the middleware grabs the stringified response object from Redis, parses it, and responds with a `201` status directly out of cache—completely bypassing PostgreSQL.
+3. **Response Interception (Monkey Patching)**: The middleware dynamically replaces Express's native `res.json` method with a custom tracker:
+   * **On 200/201 Success**: The real output payload is stringified and saves over the temporary `"PROCESSING"` placeholder in Redis using a static 30-second expiration.
+   * **On Error (e.g., 400 Bad Request)**: If your database schema validations throw an error, the middleware triggers `DEL <key>` in Redis. This immediately clears the lock so the client can fix input issues and resubmit without getting blocked.
+4. **Resilient Fail-Open Design**: If your Redis instance drops offline or suffers a network partition, the middleware catches the exception, logs it to your console, and calls `next()` to let the core PostgreSQL transaction finish normally.
+
 ## API TESTING (THURDER CLIENT )
 
 ## MiddleWare
